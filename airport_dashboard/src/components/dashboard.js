@@ -47,6 +47,9 @@ export default class Dashboard extends React.Component {
         if(this.state.airportCode.length > 3){
             this.setState({errorMessage: 'Airport codes are only 3 letters'});
         }
+        else if(this.checkDuplicate(this.state.airportCode)){
+            this.setState({errorMessage: 'This airport code already exists in the dashboard'});
+        }
         else{
             getWeatherStation({airportCode:this.state.airportCode})
             .then(res => {
@@ -56,6 +59,7 @@ export default class Dashboard extends React.Component {
                         airportCodeList: prevState.airportCodeList.concat(
                             [
                                 {
+                                    code: this.state.airportCode,
                                     timezone: res.data.properties.timeZone, 
                                     lat:Number(res.data.geometry.coordinates[0].toFixed(4)), 
                                     long:Number(res.data.geometry.coordinates[1].toFixed(4)),
@@ -73,6 +77,15 @@ export default class Dashboard extends React.Component {
                 this.setState({errorMessage:'There was an error contacting the server'});
             })
         }
+    }
+
+    checkDuplicate = (code) =>{
+        for(var i = 0; i < this.state.airportCodeList.length; i++){
+            if(this.state.airportCodeList[i].code === code){
+                return true;
+            }
+        }
+        return false;
     }
 
     removeMethod = (id) => {
